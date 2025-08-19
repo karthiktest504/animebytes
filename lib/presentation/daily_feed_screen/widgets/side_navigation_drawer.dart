@@ -81,6 +81,13 @@ class _SideNavigationDrawerState extends State<SideNavigationDrawer> {
                         _showFeedbackDialog();
                       },
                     ),
+                    Divider(color: Colors.grey[400]),
+                    _buildNavItem(
+                      icon: Icons.logout,
+                      title: 'Sign Out',
+                      onTap: _handleSignOut,
+                      textColor: Colors.red[600],
+                    ),
                   ],
                 ),
               ),
