@@ -20,6 +20,7 @@ class _SplashScreenState extends State<SplashScreen>
   late Animation<double> _fadeAnimation;
   bool _isInitializing = true;
   String _loadingText = 'Initializing...';
+  final AuthService _authService = AuthService();
 
   @override
   void initState() {
