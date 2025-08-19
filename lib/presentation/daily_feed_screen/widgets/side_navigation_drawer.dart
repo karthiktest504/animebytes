@@ -213,17 +213,47 @@ class _SideNavigationDrawerState extends State<SideNavigationDrawer> {
 
   void _handleSignOut() async {
     try {
-      Navigator.pop(context);
-      await _authService.signOut();
-      Navigator.pushReplacementNamed(context, AppRoutes.dailyFeed);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Signed out successfully')),
+      // Show confirmation dialog
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Sign Out'),
+          content: const Text('Are you sure you want to sign out?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red[600]),
+              child: const Text('Sign Out', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
       );
+
+      if (confirmed == true) {
+        Navigator.pop(context); // Close drawer
+        await _authService.signOut();
+        Navigator.pushNamedAndRemoveUntil(
+          context, 
+          AppRoutes.welcome, 
+          (route) => false,
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Signed out successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text('Sign out failed: $error'),
-            backgroundColor: Colors.red),
+          content: Text('Sign out failed: $error'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
