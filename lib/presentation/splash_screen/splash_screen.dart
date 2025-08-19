@@ -216,13 +216,15 @@ class _SplashScreenState extends State<SplashScreen>
   void _navigateToNextScreen(bool isAuthenticated, bool hasSeenOnboarding) {
     String nextRoute;
 
-    if (!hasSeenOnboarding) {
+    if (!isAuthenticated) {
+      // User not authenticated, go to welcome screen
+      nextRoute = '/welcome';
+    } else if (!hasSeenOnboarding) {
+      // Authenticated but hasn't seen onboarding
       nextRoute = '/onboarding-flow-screen';
-    } else if (isAuthenticated) {
-      nextRoute = '/daily-feed-screen';
     } else {
-      nextRoute =
-          '/daily-feed-screen'; // For demo purposes, go directly to feed
+      // Authenticated and has seen onboarding, go to main app
+      nextRoute = '/daily-feed-screen';
     }
 
     Navigator.pushReplacementNamed(context, nextRoute);
