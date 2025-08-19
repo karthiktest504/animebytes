@@ -71,26 +71,35 @@ class _SplashScreenState extends State<SplashScreen>
       await Future.delayed(const Duration(milliseconds: 500));
       final prefs = await SharedPreferences.getInstance();
 
-      // Check authentication status
+      // Check authentication status with Supabase
       setState(() => _loadingText = 'Checking authentication...');
       await Future.delayed(const Duration(milliseconds: 500));
-      final isAuthenticated = prefs.getBool('is_authenticated') ?? false;
+      final isAuthenticated = _authService.isAuthenticated;
       final hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;
 
-      // Load user preferences
-      setState(() => _loadingText = 'Loading user settings...');
-      await Future.delayed(const Duration(milliseconds: 500));
-      await _loadUserPreferences(prefs);
+      // Load user preferences if authenticated
+      if (isAuthenticated) {
+        setState(() => _loadingText = 'Loading user settings...');
+        await Future.delayed(const Duration(milliseconds: 500));
+        await _loadUserPreferences(prefs);
+        
+        // Update daily streak
+        setState(() => _loadingText = 'Updating daily streak...');
+        await Future.delayed(const Duration(milliseconds: 300));
+        await _authService.updateDailyStreak();
+      }
 
       // Fetch trending anime tags
-      setState(() => _loadingText = 'Fetching trending content...');
-      await Future.delayed(const Duration(milliseconds: 500));
-      await _fetchTrendingTags();
+      if (isAuthenticated) {
+        setState(() => _loadingText = 'Fetching trending content...');
+        await Future.delayed(const Duration(milliseconds: 500));
+        await _fetchTrendingTags();
 
-      // Prepare cached story content
-      setState(() => _loadingText = 'Preparing stories...');
-      await Future.delayed(const Duration(milliseconds: 500));
-      await _prepareCachedContent();
+        // Prepare cached story content
+        setState(() => _loadingText = 'Preparing stories...');
+        await Future.delayed(const Duration(milliseconds: 500));
+        await _prepareCachedContent();
+      }
 
       setState(() => _isInitializing = false);
 
@@ -103,6 +112,7 @@ class _SplashScreenState extends State<SplashScreen>
         _navigateToNextScreen(isAuthenticated, hasSeenOnboarding);
       }
     } catch (e) {
+      print('Initialization error: $e');
       // Handle initialization errors
       if (mounted) {
         _showRetryOption();
