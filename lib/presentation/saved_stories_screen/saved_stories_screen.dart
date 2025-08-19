@@ -11,6 +11,7 @@ import './widgets/filter_chips_row.dart';
 import './widgets/saved_story_card.dart';
 import './widgets/search_bar_widget.dart';
 
+
 class SavedStoriesScreen extends StatefulWidget {
   const SavedStoriesScreen({super.key});
 
@@ -158,7 +159,7 @@ class _SavedStoriesScreenState extends State<SavedStoriesScreen> {
       if (_viewType == 'saved') {
         await _animeService.toggleSaveStory(storyId);
       } else {
-        await _animeService.likeStory(storyId);
+        await _animeService.toggleLikeStory(storyId);
       }
       setState(() {
         _stories.removeWhere((story) => story.id == storyId);
@@ -290,10 +291,9 @@ class _SavedStoriesScreenState extends State<SavedStoriesScreen> {
                                       viewType: _viewType,
                                       onRemove: () => _onStoryRemoved(
                                           _filteredStories[index].id),
-                                      onTap: () => Navigator.pushNamed(
-                                          context, AppRoutes.storyDetail,
-                                          arguments:
-                                              _filteredStories[index].id));
+                                      onTap: () {
+                                        // Popup removed: No action or add your own logic here
+                                      });
                                 })),
                   ]));
   }

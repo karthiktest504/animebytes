@@ -6,8 +6,8 @@ class AppTheme {
   AppTheme._();
 
   // Adaptive Anime-Focused Palette - Colors optimized for both light and dark viewing conditions
-  static const Color primaryLight = Color(0xFF6C5CE7);
-  static const Color primaryDark = Color(0xFF6C5CE7);
+  static const Color primaryLight = Color(0xFFE49038);
+  static const Color primaryDark = Color(0xFFE49038);
   static const Color secondaryLight = Color(0xFFA29BFE);
   static const Color secondaryDark = Color(0xFFA29BFE);
   static const Color backgroundLight = Color(0xFFFFFFFF);

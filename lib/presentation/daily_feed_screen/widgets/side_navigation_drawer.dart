@@ -85,28 +85,7 @@ class _SideNavigationDrawerState extends State<SideNavigationDrawer> {
                 ),
               ),
 
-              // Sign out button
-              if (widget.userProfile != null) ...[
-                Divider(color: Colors.grey[300]),
-                _buildNavItem(
-                  icon: Icons.logout_outlined,
-                  title: 'Sign Out',
-                  textColor: Colors.red,
-                  onTap: _handleSignOut,
-                ),
-              ] else ...[
-                Divider(color: Colors.grey[300]),
-                _buildNavItem(
-                  icon: Icons.login_outlined,
-                  title: 'Sign In',
-                  textColor: Colors.blue,
-                  onTap: () {
-                    Navigator.pop(context);
-                    _showAuthDialog();
-                  },
-                ),
-              ],
-
+              // ...existing code...
               SizedBox(height: 2.h),
             ],
           ),

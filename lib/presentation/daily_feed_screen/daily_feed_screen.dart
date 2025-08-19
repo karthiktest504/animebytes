@@ -32,7 +32,7 @@ class _DailyFeedScreenState extends State<DailyFeedScreen> {
   UserProfile? _userProfile;
   int _currentStoryIndex = 0;
   bool _isLoading = true;
-  String? _selectedTag;
+  String? _selectedTag; // This will now store the tag UUID
   List<String> _preferredGenres = const [];
   Map<String, Map<String, bool>> _storyLocalInteractions = {};
 
@@ -97,7 +97,7 @@ class _DailyFeedScreenState extends State<DailyFeedScreen> {
 
   Future<void> _onTagSelected(String? tagName) async {
     setState(() {
-      _selectedTag = tagName;
+      _selectedTag = tagName; // tagName is now the tag UUID
       _currentStoryIndex = 0;
     });
     await _loadInitialData();
@@ -110,7 +110,7 @@ class _DailyFeedScreenState extends State<DailyFeedScreen> {
     try {
       bool result = false;
       if (interactionType == 'like') {
-        result = await _animeService.likeStory(storyId);
+        result = await _animeService.toggleLikeStory(storyId);
       } else if (interactionType == 'save') {
         result = await _animeService.toggleSaveStory(storyId);
       }
@@ -126,8 +126,10 @@ class _DailyFeedScreenState extends State<DailyFeedScreen> {
       });
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(result
-              ? '${interactionType == 'like' ? 'Liked' : 'Saved'} story!'
-              : '${interactionType == 'like' ? 'Unliked' : 'Unsaved'} story!'),
+              ? (interactionType == 'like'
+                  ? ((_storyLocalInteractions[storyId]?['liked'] ?? false) ? 'Liked story!' : 'Unliked story!')
+                  : 'Saved story!')
+              : (interactionType == 'like' ? 'Unliked story!' : 'Unsaved story!')),
           duration: const Duration(seconds: 1)));
     } catch (error) {
       _showError('Failed to $interactionType story');
@@ -170,7 +172,7 @@ class _DailyFeedScreenState extends State<DailyFeedScreen> {
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
             child: AppBar(
-              backgroundColor: Colors.white.withOpacity(0.13),
+              backgroundColor: Colors.black.withOpacity(0.55),
               elevation: 0,
               leading: Builder(
                 builder: (context) => IconButton(

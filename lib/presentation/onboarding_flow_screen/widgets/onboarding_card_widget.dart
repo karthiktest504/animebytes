@@ -33,8 +33,9 @@ class OnboardingCardWidget extends StatelessWidget {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            backgroundColor,
-            backgroundColor.withValues(alpha: 0.8),
+            Colors.black,
+            backgroundColor.withOpacity(0.85),
+            Colors.black.withOpacity(0.95),
           ],
         ),
       ),
@@ -42,6 +43,8 @@ class OnboardingCardWidget extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
                 flex: 3,
@@ -56,19 +59,31 @@ class OnboardingCardWidget extends StatelessWidget {
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.1),
-                              blurRadius: 20,
+                              color: Colors.black.withOpacity(0.25),
+                              blurRadius: 24,
                               offset: const Offset(0, 10),
                             ),
                           ],
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(20),
-                          child: CustomImageWidget(
-                            imageUrl: imagePath,
-                            width: 70.w,
-                            height: 35.h,
-                            fit: BoxFit.cover,
+                          child: Stack(
+                            children: [
+                              CustomImageWidget(
+                                imageUrl: imagePath,
+                                width: 70.w,
+                                height: 35.h,
+                                fit: BoxFit.cover,
+                              ),
+                              Container(
+                                width: 70.w,
+                                height: 35.h,
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.55),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -81,12 +96,19 @@ class OnboardingCardWidget extends StatelessWidget {
                 flex: 2,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
                       title,
                       style: theme.textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withOpacity(0.7),
+                            blurRadius: 8,
+                          ),
+                        ],
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -94,8 +116,14 @@ class OnboardingCardWidget extends StatelessWidget {
                     Text(
                       description,
                       style: theme.textTheme.bodyLarge?.copyWith(
-                        color: Colors.white.withValues(alpha: 0.9),
+                        color: Colors.white.withOpacity(0.92),
                         height: 1.5,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withOpacity(0.6),
+                            blurRadius: 6,
+                          ),
+                        ],
                       ),
                       textAlign: TextAlign.center,
                     ),

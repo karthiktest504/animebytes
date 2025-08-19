@@ -23,24 +23,15 @@ class ProfileSettingsScreen extends StatefulWidget {
 
 class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   // User Profile Data
-  final String _username = 'AnimeOtaku2024';
-  final String _avatarUrl =
-      'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1';
-  final int _currentStreak = 15;
-  final int _longestStreak = 42;
+  String _username = '';
+  String _avatarUrl = '';
+  int _currentStreak = 0;
+  int _longestStreak = 0;
 
   // Personalization Settings
-  List<String> _selectedAnime = [
-    'Attack on Titan',
-    'Demon Slayer',
-    'One Piece'
-  ];
-  List<String> _selectedGenres = ['Action', 'Adventure', 'Fantasy'];
-  List<String> _selectedCharacters = [
-    'Goku',
-    'Naruto Uzumaki',
-    'Tanjiro Kamado'
-  ];
+  List<String> _selectedAnime = [];
+  List<String> _selectedGenres = [];
+  List<String> _selectedCharacters = [];
 
   // Notification Settings
   bool _pushAlertsEnabled = true;
@@ -112,12 +103,13 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
       _digestTime = prefs.getString('digest_time') ?? '8:00 AM';
       _autoPlayEnabled = prefs.getBool('auto_play') ?? true;
       _readingSpeed = prefs.getDouble('reading_speed') ?? 1.0;
-      _selectedAnime = prefs.getStringList('selected_anime') ??
-          ['Attack on Titan', 'Demon Slayer', 'One Piece'];
-      _selectedGenres = prefs.getStringList('selected_genres') ??
-          ['Action', 'Adventure', 'Fantasy'];
-      _selectedCharacters = prefs.getStringList('selected_characters') ??
-          ['Goku', 'Naruto Uzumaki', 'Tanjiro Kamado'];
+      _selectedAnime = prefs.getStringList('selected_anime') ?? [];
+      _selectedGenres = prefs.getStringList('selected_genres') ?? [];
+      _selectedCharacters = prefs.getStringList('selected_characters') ?? [];
+      _username = prefs.getString('username') ?? '';
+      _avatarUrl = prefs.getString('avatar_url') ?? '';
+      _currentStreak = prefs.getInt('current_streak') ?? 0;
+      _longestStreak = prefs.getInt('longest_streak') ?? 0;
     });
   }
 
@@ -133,6 +125,10 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     await prefs.setStringList('selected_anime', _selectedAnime);
     await prefs.setStringList('selected_genres', _selectedGenres);
     await prefs.setStringList('selected_characters', _selectedCharacters);
+    await prefs.setString('username', _username);
+    await prefs.setString('avatar_url', _avatarUrl);
+    await prefs.setInt('current_streak', _currentStreak);
+    await prefs.setInt('longest_streak', _longestStreak);
   }
 
   @override

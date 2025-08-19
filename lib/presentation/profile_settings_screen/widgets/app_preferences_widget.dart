@@ -58,17 +58,7 @@ class AppPreferencesWidget extends StatelessWidget {
             ],
           ),
           SizedBox(height: 3.h),
-          _buildPreferenceTile(
-            context,
-            theme,
-            colorScheme,
-            'Dark Mode',
-            'Switch between light and dark themes',
-            'dark_mode',
-            darkModeEnabled,
-            onDarkModeChanged,
-          ),
-          SizedBox(height: 2.h),
+          // Dark Mode option removed for this phase
           _buildPreferenceTile(
             context,
             theme,

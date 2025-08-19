@@ -8,6 +8,34 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 
 class AnimeService {
+  Future<void> unlikeStoryLocally(String storyId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final liked = prefs.getStringList('liked_stories') ?? [];
+    liked.remove(storyId);
+    await prefs.setStringList('liked_stories', liked);
+  }
+
+  Future<bool> unlikeStory(String storyId) async {
+    final client = SupabaseService.instance.client;
+    try {
+      // Start a transaction by decrementing the like count
+      final res = await client.rpc('decrement_like_count', params: {'story_id': storyId});
+      if (res.error != null) throw res.error;
+
+      // Record the unlike interaction
+      await client.from('user_story_interactions').insert({
+        'story_id': storyId,
+        'interaction_type': 'unlike',
+      }).select();
+
+      // Remove from local liked
+      await unlikeStoryLocally(storyId);
+      return true;
+    } catch (e) {
+      print('Error unliking story: $e');
+      return false;
+    }
+  }
   // Returns local like/save state for a story
   Future<Map<String, bool>> getLocalInteractions(String storyId) async {
     final liked = await isStoryLiked(storyId);
@@ -157,28 +185,35 @@ class AnimeService {
   }
 
 
-  // Like: global, only allow once per device
-  Future<bool> likeStory(String storyId) async {
-    if (await isStoryLiked(storyId)) return false;
+  // Like/unlike toggle: global and local
+  Future<bool> toggleLikeStory(String storyId) async {
     final client = SupabaseService.instance.client;
-    
+    final isLiked = await isStoryLiked(storyId);
     try {
-      // Start a transaction by incrementing the like count
-      final res = await client.rpc('increment_like_count', params: {'story_id': storyId});
-      if (res.error != null) throw res.error;
-
-      // Record the like interaction
-      await client.from('user_story_interactions').insert({
-        'story_id': storyId,
-        'interaction_type': 'like',
-      }).select();
-
-      // If everything succeeded, mark as liked locally
-      await markStoryLikedLocally(storyId);
-      return true;
+      if (isLiked) {
+        // Unlike: decrement like count, record unlike, update local
+        final res = await client.rpc('decrement_like_count', params: {'story_id': storyId});
+        if (res.error != null) throw res.error;
+        await client.from('user_story_interactions').insert({
+          'story_id': storyId,
+          'interaction_type': 'unlike',
+        }).select();
+        await unlikeStoryLocally(storyId);
+        return false;
+      } else {
+        // Like: increment like count, record like, update local
+        final res = await client.rpc('increment_like_count', params: {'story_id': storyId});
+        if (res.error != null) throw res.error;
+        await client.from('user_story_interactions').insert({
+          'story_id': storyId,
+          'interaction_type': 'like',
+        }).select();
+        await markStoryLikedLocally(storyId);
+        return true;
+      }
     } catch (e) {
-      print('Error liking story: $e');
-      return false;
+      print('Error toggling like: $e');
+      return isLiked;
     }
   }
 

@@ -101,7 +101,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
 
   Future<void> _handleLike() async {
     if (_userProfile == null || _story == null) return;
-  final result = await _animeService.likeStory(_story!.id);
+    final result = await _animeService.toggleLikeStory(_story!.id);
     await _loadStory();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

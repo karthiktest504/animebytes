@@ -1,11 +1,33 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:sizer/sizer.dart';
+
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../models/anime_story.dart';
 
 class StoryCardWidget extends StatelessWidget {
+  String _getAuthorInitial(AnimeStory story) {
+    final name = _getAuthorName(story);
+    if (name.isNotEmpty) return name[0].toUpperCase();
+    return 'A';
+  }
+
+  String _getAuthorName(AnimeStory story) {
+    // If you have author name in the story, use it. Otherwise fallback.
+    // You can enhance this to fetch author name from a user profile if needed.
+    return story.authorId ?? 'AnimeBot';
+  }
+
+  String _formatTimeAgo(DateTime dateTime) {
+    final now = DateTime.now();
+    final diff = now.difference(dateTime);
+    if (diff.inMinutes < 1) return 'now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m';
+    if (diff.inHours < 24) return '${diff.inHours}h';
+    return '${diff.inDays}d';
+  }
   final AnimeStory story;
   final VoidCallback onLike;
   final VoidCallback onSave;
@@ -52,7 +74,7 @@ class StoryCardWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Top row: tag and time
+                  // Top row: news icon and time
                   Row(
                     children: [
                       Container(
@@ -63,7 +85,7 @@ class StoryCardWidget extends StatelessWidget {
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.newspaper, color: Colors.amber, size: 13.sp),
+                            Icon(Icons.article, color: Colors.amber, size: 13.sp),
                             SizedBox(width: 1.w),
                             Text('NEWS', style: TextStyle(fontSize: 9.sp, color: Colors.amber, fontWeight: FontWeight.w700)),
                           ],
@@ -74,7 +96,7 @@ class StoryCardWidget extends StatelessWidget {
                         children: [
                           Icon(Icons.access_time, color: Colors.white54, size: 11.sp),
                           SizedBox(width: 0.7.w),
-                          Text('3m', style: TextStyle(fontSize: 8.5.sp, color: Colors.white54)),
+                          Text(_formatTimeAgo(story.publishedAt), style: TextStyle(fontSize: 8.5.sp, color: Colors.white54)),
                         ],
                       ),
                     ],
@@ -82,31 +104,26 @@ class StoryCardWidget extends StatelessWidget {
                   SizedBox(height: 2.2.h),
                   // Title
                   Text(
-                    'Why Gojo\'s return broke the internet today',
+                    story.title,
                     style: TextStyle(fontSize: 15.5.sp, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                   SizedBox(height: 1.1.h),
-                  // Summary
+                  // Content or Summary
                   Text(
-                    '> The moment every JJK fan has been waiting for finally happened - Gojo is back and he\'s more powerful than ever. > Gege Akutami...',
+                    (story.content != null && story.content!.trim().isNotEmpty)
+                        ? story.content!
+                        : story.summary,
                     style: TextStyle(fontSize: 10.5.sp, color: Colors.white70, height: 1.4),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                   ),
                   SizedBox(height: 1.1.h),
-                  // Read more
-                  GestureDetector(
-                    onTap: onTap,
-                    child: Text('Read More', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.w600, fontSize: 10.5.sp)),
-                  ),
-                  SizedBox(height: 2.2.h),
+                  // ...removed Read More button and spacing...
                   // Author row
                   Row(
                     children: [
                       CircleAvatar(
                         backgroundColor: Colors.amber,
                         radius: 15,
-                        child: Text('A', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                        child: Text(_getAuthorInitial(story), style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
                       ),
                       SizedBox(width: 1.5.w),
                       Column(
@@ -136,7 +153,6 @@ class StoryCardWidget extends StatelessWidget {
                       _buildActionButton(
                         icon: Icons.bookmark_border,
                         activeIcon: Icons.bookmark,
-                        count: story.saveCount,
                         onPressed: onSave,
                         isActive: isSaved,
                       ),
@@ -144,25 +160,13 @@ class StoryCardWidget extends StatelessWidget {
                       _buildActionButton(
                         icon: Icons.share_outlined,
                         activeIcon: Icons.share,
-                        count: story.shareCount,
-                        onPressed: onShare,
+                        onPressed: () {
+                          final text = 'Check out this story!\n\n${story.title}\n\n${story.summary}';
+                          Share.share(text);
+                        },
                         isActive: false,
                       ),
-                      Spacer(),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 3.5.w, vertical: 0.7.h),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.13),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.emoji_events, color: Colors.amber, size: 13.sp),
-                            SizedBox(width: 1.w),
-                            Text('Jujutsu', style: TextStyle(fontSize: 9.sp, color: Colors.amber, fontWeight: FontWeight.w700)),
-                          ],
-                        ),
-                      ),
+                      // Removed bottom right icon as requested
                     ],
                   ),
                 ],
@@ -205,7 +209,10 @@ class StoryCardWidget extends StatelessWidget {
           icon: Icons.share_outlined,
           activeIcon: Icons.share,
           count: story.shareCount,
-          onPressed: onShare,
+          onPressed: () {
+            final text = 'Check out this story!\n\n${story.title}\n\n${story.summary}';
+            Share.share(text);
+          },
           isActive: false,
         ),
         const Spacer(),
@@ -234,7 +241,7 @@ class StoryCardWidget extends StatelessWidget {
   Widget _buildActionButton({
     required IconData icon,
     required IconData activeIcon,
-    required int count,
+    int? count,
     required VoidCallback onPressed,
     required bool isActive,
   }) {
@@ -261,15 +268,17 @@ class StoryCardWidget extends StatelessWidget {
                     color: isActive ? Colors.red : Colors.white,
                   ),
                 ),
-                SizedBox(height: 0.3.h),
-                Text(
-                  _formatCount(count),
-                  style: TextStyle(
-                    fontSize: 9.5.sp,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500,
+                if (count != null) ...[
+                  SizedBox(height: 0.3.h),
+                  Text(
+                    _formatCount(count),
+                    style: TextStyle(
+                      fontSize: 9.5.sp,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                ),
+                ]
               ],
             ),
           );
