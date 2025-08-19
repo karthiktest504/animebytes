@@ -23,7 +23,7 @@ class DailyFeedScreen extends StatefulWidget {
 
 class _DailyFeedScreenState extends State<DailyFeedScreen> {
   final AnimeService _animeService = AnimeService();
-  final AuthService _authService = AuthService();
+  late AuthService _authService;
   final PageController _pageController = PageController();
   bool _isNavigating = false;
 
@@ -39,8 +39,9 @@ class _DailyFeedScreenState extends State<DailyFeedScreen> {
   @override
   void initState() {
     super.initState();
+    _authService = AuthService();
     _loadInitialData();
-    _updateDailyStreak();
+    _loadUserProfile();
   }
 
   Future<void> _loadInitialData() async {
