@@ -44,6 +44,17 @@ class _DailyFeedScreenState extends State<DailyFeedScreen> {
     _loadUserProfile();
   }
 
+  Future<void> _loadUserProfile() async {
+    try {
+      final profile = await _authService.getCurrentUserProfile();
+      setState(() {
+        _userProfile = profile;
+      });
+    } catch (e) {
+      print('Error loading user profile: $e');
+    }
+  }
+
   Future<void> _loadInitialData() async {
     try {
       setState(() => _isLoading = true);
@@ -59,11 +70,12 @@ class _DailyFeedScreenState extends State<DailyFeedScreen> {
         tag: _selectedTag,
       );
       final trendingTags = await _animeService.getTrendingTags(limit: 10);
-      // No real user profile needed for no-auth mode
+      
       Map<String, Map<String, bool>> localInteractions = {};
       for (final s in stories) {
         localInteractions[s.id] = await _animeService.getLocalInteractions(s.id);
       }
+      
       setState(() {
         _stories = stories;
         _trendingTags = trendingTags;
@@ -85,14 +97,6 @@ class _DailyFeedScreenState extends State<DailyFeedScreen> {
       print('Stack trace: $stackTrace');    // Debug log
       setState(() => _isLoading = false);
       _showError('Failed to load content: $error');
-    }
-  }
-
-  Future<void> _updateDailyStreak() async {
-    try {
-      await _authService.updateDailyStreak();
-    } catch (error) {
-      // Silent fail for streak update
     }
   }
 
