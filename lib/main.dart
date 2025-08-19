@@ -5,11 +5,19 @@ import 'package:sizer/sizer.dart';
 import '../core/app_export.dart';
 import '../widgets/custom_error_widget.dart';
 import '../services/supabase_service.dart';
+import '../services/auth_service.dart';
+
+// Global AuthService instance
+late AuthService authService;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   // Initialize Supabase with environment variables
   await SupabaseService.initialize();
+  
+  // Initialize global auth service
+  authService = AuthService();
 
   // 🚨 CRITICAL: Custom error handling - DO NOT REMOVE
   ErrorWidget.builder = (FlutterErrorDetails details) {
